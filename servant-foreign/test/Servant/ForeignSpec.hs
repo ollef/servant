@@ -38,35 +38,44 @@ camelCaseSpec = describe "camelCase" $ do
 ----------------------------------------------------------------------
 
 -- This declaration simply checks that all instances are in place.
-_ = listFromAPI (Proxy :: Proxy LangX) (Proxy :: Proxy String) comprehensiveAPIWithoutRaw
+_ = listFromAPI (Proxy :: Proxy LangX) (Proxy :: Proxy String) (Proxy :: Proxy String) comprehensiveAPIWithoutRaw
 
 ----------------------------------------------------------------------
 
 data LangX
 
-instance HasForeignType LangX String NoContent where
-  typeFor _ _ _ = "voidX"
+instance HasForeignResult LangX any String NoContent where
+  resultFor _ _ _ _ = "voidX"
 
-instance HasForeignType LangX String (Headers ctyps NoContent) where
-  typeFor _ _ _ = "voidX"
+instance HasForeignResult LangX any String (Headers ctyps NoContent) where
+  resultFor _ _ _ _ = "voidX"
 
-instance HasForeignType LangX String Int where
-  typeFor _ _ _ = "intX"
+instance HasForeignArgument LangX any String Int where
+  argumentFor _ _ _ _ = "arg intX"
 
-instance HasForeignType LangX String (SourceT m a) where
-  typeFor _ _ _ = "streamTX"
+instance HasForeignResult LangX any String Int where
+  resultFor _ _ _ _ = "res intX"
 
-instance HasForeignType LangX String Bool where
-  typeFor _ _ _ = "boolX"
+instance HasForeignArgument LangX any String (SourceT m a) where
+  argumentFor _ _ _ _ = "arg streamTX"
 
-instance {-# OVERLAPPING #-} HasForeignType LangX String String where
-  typeFor _ _ _ = "stringX"
+instance HasForeignResult LangX any String (SourceT m a) where
+  resultFor _ _ _ _ = "res streamTX"
 
-instance {-# OVERLAPPABLE #-} HasForeignType LangX String a => HasForeignType LangX String [a] where
-  typeFor lang ftype _ = "listX of " <> typeFor lang ftype (Proxy :: Proxy a)
+instance HasForeignArgument LangX any String Bool where
+  argumentFor _ _ _ _ = "boolX"
 
-instance (HasForeignType LangX String a) => HasForeignType LangX String (Maybe a) where
-  typeFor lang ftype _ = "maybe " <> typeFor lang ftype (Proxy :: Proxy a)
+instance {-# OVERLAPPING #-} HasForeignArgument LangX any String String where
+  argumentFor _ _ _ _ = "stringX"
+
+instance {-# OVERLAPPABLE #-} HasForeignArgument LangX any String a => HasForeignArgument LangX any String [a] where
+  argumentFor lang cs farg _ = "arg listX of " <> argumentFor lang cs farg (Proxy :: Proxy a)
+
+instance {-# OVERLAPPABLE #-} HasForeignResult LangX any String a => HasForeignResult LangX any String [a] where
+  resultFor lang cs fres _ = "res listX of " <> resultFor lang cs fres (Proxy :: Proxy a)
+
+instance (HasForeignArgument LangX any String a) => HasForeignArgument LangX any String (Maybe a) where
+  argumentFor lang cs farg _ = "maybe " <> argumentFor lang cs farg (Proxy :: Proxy a)
 
 type TestApi
     = "test" :> Header "header" [String] :> QueryFlag "flag" :> Get '[JSON] Int
@@ -76,8 +85,8 @@ type TestApi
  :<|> "test" :> CaptureAll "ids" Int :> Get '[JSON] [Int]
  :<|> "test" :> EmptyAPI
 
-testApi :: [Req String]
-testApi = listFromAPI (Proxy :: Proxy LangX) (Proxy :: Proxy String) (Proxy :: Proxy TestApi)
+testApi :: [Req String String]
+testApi = listFromAPI (Proxy :: Proxy LangX) (Proxy :: Proxy String) (Proxy :: Proxy String) (Proxy :: Proxy TestApi)
 
 listFromAPISpec :: Spec
 listFromAPISpec = describe "listFromAPI" $ do
@@ -92,9 +101,9 @@ listFromAPISpec = describe "listFromAPI" $ do
           [ Segment $ Static "test" ]
           [ QueryArg (Arg "flag" "boolX") Flag ]
       , _reqMethod     = "GET"
-      , _reqHeaders    = [HeaderArg $ Arg "header" "maybe listX of stringX"]
+      , _reqHeaders    = [HeaderArg $ Arg "header" "maybe arg listX of stringX"]
       , _reqBody       = Nothing
-      , _reqReturnType = Just "intX"
+      , _reqReturnType = Just "res intX"
       , _reqFuncName   = FunctionName ["get", "test"]
       }
 
@@ -102,10 +111,10 @@ listFromAPISpec = describe "listFromAPI" $ do
     shouldBe postReq $ defReq
       { _reqUrl        = Url
           [ Segment $ Static "test" ]
-          [ QueryArg (Arg "param" "maybe intX") Normal ]
+          [ QueryArg (Arg "param" "maybe arg intX") Normal ]
       , _reqMethod     = "POST"
       , _reqHeaders    = []
-      , _reqBody       = Just "listX of stringX"
+      , _reqBody       = Just "arg listX of stringX"
       , _reqReturnType = Just "voidX"
       , _reqFuncName   = FunctionName ["post", "test"]
       }
@@ -115,7 +124,7 @@ listFromAPISpec = describe "listFromAPI" $ do
       { _reqUrl        = Url
           [ Segment $ Static "test" ]
           -- Shoud this be |intX| or |listX of intX| ?
-          [ QueryArg (Arg "params" "listX of intX") List ]
+          [ QueryArg (Arg "params" "arg listX of arg intX") List ]
       , _reqMethod     = "PUT"
       , _reqHeaders    = []
       , _reqBody       = Just "stringX"
@@ -127,7 +136,7 @@ listFromAPISpec = describe "listFromAPI" $ do
     shouldBe deleteReq $ defReq
       { _reqUrl        = Url
           [ Segment $ Static "test"
-          , Segment $ Cap (Arg "id" "intX") ]
+          , Segment $ Cap (Arg "id" "arg intX") ]
           []
       , _reqMethod     = "DELETE"
       , _reqHeaders    = []
@@ -140,11 +149,11 @@ listFromAPISpec = describe "listFromAPI" $ do
     shouldBe captureAllReq $ defReq
       { _reqUrl        = Url
           [ Segment $ Static "test"
-          , Segment $ Cap (Arg "ids" "listX of intX") ]
+          , Segment $ Cap (Arg "ids" "arg listX of arg intX") ]
           []
       , _reqMethod     = "GET"
       , _reqHeaders    = []
       , _reqBody       = Nothing
-      , _reqReturnType = Just "listX of intX"
+      , _reqReturnType = Just "res listX of res intX"
       , _reqFuncName   = FunctionName ["get", "test", "by", "ids"]
       }

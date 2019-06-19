@@ -41,9 +41,9 @@ module Servant.Foreign
   , _List
     -- rest of it
   , HasForeign(..)
-  , HasForeignType(..)
+  , HasForeignArgument(..)
+  , HasForeignResult(..)
   , GenerateList(..)
-  , NoTypes
   , captureArg
   , isCapture
   , defReq
