@@ -2,6 +2,7 @@
 {-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveDataTypeable         #-}
+{-# LANGUAGE DeriveFunctor             #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -53,7 +54,7 @@ makePrisms ''PathSegment
 data Arg f = Arg
   { _argName :: PathSegment
   , _argType :: f }
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Functor, Eq, Show, Typeable)
 
 makeLenses ''Arg
 
