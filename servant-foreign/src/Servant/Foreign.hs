@@ -6,7 +6,6 @@ module Servant.Foreign
   , QueryArg(..)
   , Req(..)
   , ReqBodyContentType(..)
-  , Segment(..)
   , SegmentType(..)
   , Url(..)
     -- aliases
@@ -44,8 +43,6 @@ module Servant.Foreign
   , HasForeignArgument(..)
   , HasForeignResult(..)
   , GenerateList(..)
-  , captureArg
-  , isCapture
   , defReq
   , listFromAPI
     -- re-exports

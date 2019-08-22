@@ -70,20 +70,7 @@ data SegmentType f
 
 makePrisms ''SegmentType
 
-newtype Segment f = Segment { unSegment :: SegmentType f }
-  deriving (Data, Eq, Show, Typeable)
-
-makePrisms ''Segment
-
-isCapture :: Segment f -> Bool
-isCapture (Segment (Cap _)) = True
-isCapture                _  = False
-
-captureArg :: Segment f -> Arg f
-captureArg (Segment (Cap s)) = s
-captureArg                 _ = error "captureArg called on non capture"
-
-type Path f = [Segment f]
+type Path f = [SegmentType f]
 
 data ArgType
   = Normal
@@ -198,7 +185,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Capture' mods sym t] farg t
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy api) $
-      req & reqUrl . path <>~ [Segment (Cap arg)]
+      req & reqUrl . path <>~ [Cap arg]
           & reqFuncName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
@@ -213,7 +200,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t],
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy sublayout) $
-      req & reqUrl . path <>~ [Segment (Cap arg)]
+      req & reqUrl . path <>~ [Cap arg]
           & reqFuncName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
@@ -331,7 +318,7 @@ instance (KnownSymbol path, HasForeign lang farg fres api)
 
   foreignFor lang farg fres Proxy req =
     foreignFor lang farg fres (Proxy :: Proxy api) $
-      req & reqUrl . path <>~ [Segment (Static (PathSegment str))]
+      req & reqUrl . path <>~ [Static (PathSegment str)]
           & reqFuncName . _FunctionName %~ (++ [str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy path)
