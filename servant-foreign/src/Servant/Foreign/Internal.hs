@@ -55,7 +55,7 @@ makeLenses ''Arg
 data PathSegment f
   = Static Text
     -- ^ a static path segment. like "/foo"
-  | Cap (Arg f)
+  | Capture (Arg f)
     -- ^ a capture. like "/:userid"
   deriving (Data, Eq, Show, Typeable)
 
@@ -160,7 +160,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Capture' mods sym t] farg t
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy api) $
-      req & reqUrl . path <>~ [Cap arg]
+      req & reqUrl . path <>~ [Capture arg]
           & reqFuncName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
@@ -175,7 +175,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t],
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy sublayout) $
-      req & reqUrl . path <>~ [Cap arg]
+      req & reqUrl . path <>~ [Capture arg]
           & reqFuncName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)

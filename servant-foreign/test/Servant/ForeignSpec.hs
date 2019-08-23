@@ -136,7 +136,7 @@ listFromAPISpec = describe "listFromAPI" $ do
     shouldBe deleteReq $ defReq
       { _reqUrl        = Url
           [ Static "test"
-          , Cap (Arg "id" "arg intX") ]
+          , Capture (Arg "id" "arg intX") ]
           []
       , _reqMethod     = "DELETE"
       , _reqHeaders    = []
@@ -149,7 +149,7 @@ listFromAPISpec = describe "listFromAPI" $ do
     shouldBe captureAllReq $ defReq
       { _reqUrl        = Url
           [ Static "test"
-          , Cap (Arg "ids" "arg listX of arg intX") ]
+          , Capture (Arg "ids" "arg listX of arg intX") ]
           []
       , _reqMethod     = "GET"
       , _reqHeaders    = []
