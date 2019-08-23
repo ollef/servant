@@ -98,8 +98,8 @@ listFromAPISpec = describe "listFromAPI" $ do
   it "collects all info for get request" $ do
     shouldBe getReq $ defReq
       { _reqUrl        = Url
-          [ Static "test" ]
-          [ QueryArg (Arg "flag" "boolX") Flag ]
+          [Static "test"]
+          [("flag", Flag, "boolX")]
       , _reqMethod     = "GET"
       , _reqHeaders    = [("header", "maybe arg listX of stringX")]
       , _reqBody       = Nothing
@@ -110,8 +110,8 @@ listFromAPISpec = describe "listFromAPI" $ do
   it "collects all info for post request" $ do
     shouldBe postReq $ defReq
       { _reqUrl        = Url
-          [ Static "test" ]
-          [ QueryArg (Arg "param" "maybe arg intX") Normal ]
+          [Static "test"]
+          [("param", Normal, "maybe arg intX")]
       , _reqMethod     = "POST"
       , _reqHeaders    = []
       , _reqBody       = Just "arg listX of stringX"
@@ -122,9 +122,9 @@ listFromAPISpec = describe "listFromAPI" $ do
   it "collects all info for put request" $ do
     shouldBe putReq $ defReq
       { _reqUrl        = Url
-          [ Static "test" ]
+          [Static "test"]
           -- Shoud this be |intX| or |listX of intX| ?
-          [ QueryArg (Arg "params" "arg listX of arg intX") List ]
+          [("params", List, "arg listX of arg intX")]
       , _reqMethod     = "PUT"
       , _reqHeaders    = []
       , _reqBody       = Just "stringX"
@@ -136,7 +136,8 @@ listFromAPISpec = describe "listFromAPI" $ do
     shouldBe deleteReq $ defReq
       { _reqUrl        = Url
           [ Static "test"
-          , Capture "id" "arg intX" ]
+          , Capture "id" "arg intX"
+          ]
           []
       , _reqMethod     = "DELETE"
       , _reqHeaders    = []
