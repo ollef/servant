@@ -47,8 +47,8 @@ makePrisms ''FunctionName
 
 data Arg f = Arg
   { _argName :: Text
-  , _argType :: f }
-  deriving (Data, Functor, Eq, Show, Typeable)
+  , _argType :: f
+  } deriving (Data, Functor, Eq, Show, Typeable)
 
 makeLenses ''Arg
 
@@ -70,16 +70,14 @@ makePrisms ''ArgType
 data QueryArg f = QueryArg
   { _queryArgName :: Arg f
   , _queryArgType :: ArgType
-  }
-  deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 makeLenses ''QueryArg
 
 data Url f = Url
   { _path     :: [PathSegment f]
   , _queryStr :: [QueryArg f]
-  }
-  deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 defUrl :: Url f
 defUrl = Url [] []
@@ -97,8 +95,7 @@ data Req arg res = Req
   , _reqReturnType      :: Maybe res
   , _reqFuncName        :: FunctionName
   , _reqBodyContentType :: ReqBodyContentType
-  }
-  deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 makeLenses ''Req
 
