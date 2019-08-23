@@ -80,12 +80,12 @@ data ReqBodyContentType = ReqBodyJSON | ReqBodyMultipart
   deriving (Data, Eq, Show, Read)
 
 data Req arg res = Req
-  { _reqUrl             :: Url arg
-  , _reqMethod          :: HTTP.Method
-  , _reqHeaders         :: [(Text, arg)]
-  , _reqBody            :: Maybe arg
-  , _reqReturnType      :: Maybe res
-  , _reqFuncName        :: FunctionName
+  { _reqUrl :: Url arg
+  , _reqMethod :: HTTP.Method
+  , _reqHeaders :: [(Text, arg)]
+  , _reqBody :: Maybe arg
+  , _reqReturnType :: Maybe res
+  , _reqFuncName :: FunctionName
   , _reqBodyContentType :: ReqBodyContentType
   } deriving (Data, Eq, Show, Typeable)
 
