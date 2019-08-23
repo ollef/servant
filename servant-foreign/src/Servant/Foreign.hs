@@ -24,10 +24,6 @@ module Servant.Foreign
   , queryString
   , queryArgName
   , queryArgType
-    -- prisms
-  , _Normal
-  , _Flag
-  , _List
     -- rest of it
   , HasForeign(..)
   , HasForeignArgument(..)

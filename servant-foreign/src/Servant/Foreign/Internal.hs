@@ -65,8 +65,6 @@ data ArgType
   | List
   deriving (Data, Eq, Show, Typeable)
 
-makePrisms ''ArgType
-
 data QueryArg f = QueryArg
   { _queryArgName :: Arg f
   , _queryArgType :: ArgType
