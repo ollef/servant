@@ -21,7 +21,7 @@ module Servant.Foreign
   , reqReturnType
   , reqFuncName
   , path
-  , queryStr
+  , queryString
   , queryArgName
   , queryArgType
     -- prisms

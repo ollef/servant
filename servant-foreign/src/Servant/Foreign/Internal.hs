@@ -75,8 +75,8 @@ data QueryArg f = QueryArg
 makeLenses ''QueryArg
 
 data Url f = Url
-  { _path     :: [PathSegment f]
-  , _queryStr :: [QueryArg f]
+  { _path :: [PathSegment f]
+  , _queryString :: [QueryArg f]
   } deriving (Data, Eq, Show, Typeable)
 
 defUrl :: Url f
@@ -227,7 +227,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[QueryParam' mods sym a] far
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang (Proxy :: Proxy farg) Proxy (Proxy :: Proxy api) $
-      req & reqUrl.queryStr <>~ [QueryArg arg Normal]
+      req & reqUrl.queryString <>~ [QueryArg arg Normal]
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       arg = Arg
@@ -240,7 +240,7 @@ instance
   type Foreign farg fres (QueryParams sym a :> api) = Foreign farg fres api
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang (Proxy :: Proxy farg) Proxy (Proxy :: Proxy api) $
-      req & reqUrl.queryStr <>~ [QueryArg arg List]
+      req & reqUrl.queryString <>~ [QueryArg arg List]
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       arg = Arg
@@ -254,7 +254,7 @@ instance
 
   foreignFor lang farg fres Proxy req =
     foreignFor lang farg fres (Proxy :: Proxy api) $
-      req & reqUrl.queryStr <>~ [QueryArg arg Flag]
+      req & reqUrl.queryString <>~ [QueryArg arg Flag]
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       arg = Arg
