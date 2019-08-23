@@ -62,7 +62,7 @@ defUrl = Url [] []
 
 makeLenses ''Url
 
-data Req arg res = Req
+data Request arg res = Request
   { _url :: Url arg
   , _method :: HTTP.Method
   , _headers :: [(Text, arg)]
@@ -71,10 +71,10 @@ data Req arg res = Req
   , _functionName :: FunctionName
   } deriving (Data, Eq, Show, Typeable)
 
-makeLenses ''Req
+makeLenses ''Request
 
-defReq :: Req arg res
-defReq = Req defUrl "GET" [] Nothing Nothing (FunctionName [])
+defReq :: Request arg res
+defReq = Request defUrl "GET" [] Nothing Nothing (FunctionName [])
 
 -- | 'HasForeignArgument' and 'HasForeignResult' map Haskell types with types in the target
 -- language of your backend. For example, let's say you're
@@ -97,7 +97,7 @@ defReq = Req defUrl "GET" [] Nothing Nothing (FunctionName [])
 -- an API you create a function of a form:
 --
 -- > getEndpoints :: (HasForeign LangX Text Text api, GenerateList Text Text (Foreign Text api))
--- >              => Proxy api -> [Req Text]
+-- >              => Proxy api -> [Request Text]
 -- > getEndpoints api = listFromAPI (Proxy :: Proxy LangX) (Proxy :: Proxy Text) (Proxy :: Proxy Text) api
 --
 class HasForeignArgument lang (contentTypes :: [*]) foreignRep a where
@@ -108,7 +108,7 @@ class HasForeignResult lang (contentTypes :: [*]) foreignRep a where
 
 class HasForeign lang farg fres (api :: *) where
   type Foreign farg fres api :: *
-  foreignFor :: Proxy lang -> Proxy farg -> Proxy fres -> Proxy api -> Req farg fres -> Foreign farg fres api
+  foreignFor :: Proxy lang -> Proxy farg -> Proxy fres -> Proxy api -> Request farg fres -> Foreign farg fres api
 
 instance (HasForeign lang farg fres a, HasForeign lang farg fres b)
   => HasForeign lang farg fres (a :<|> b) where
@@ -151,7 +151,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t],
 
 instance (HasForeignResult lang list fres a, ReflectMethod method)
   => HasForeign lang farg fres (Verb method status list a) where
-  type Foreign farg fres (Verb method status list a) = Req farg fres
+  type Foreign farg fres (Verb method status list a) = Request farg fres
 
   foreignFor lang Proxy Proxy Proxy req =
     req & functionName . _FunctionName %~ (methodLC :)
@@ -165,7 +165,7 @@ instance (HasForeignResult lang list fres a, ReflectMethod method)
 -- | TODO: doesn't taking framing into account.
 instance (HasForeignResult lang '[ct] fres a, ReflectMethod method)
   => HasForeign lang farg fres (Stream method status framing ct a) where
-  type Foreign farg fres (Stream method status framing ct a) = Req farg fres
+  type Foreign farg fres (Stream method status framing ct a) = Request farg fres
 
   foreignFor lang Proxy Proxy Proxy req =
     req & functionName . _FunctionName %~ (methodLC :)
@@ -226,7 +226,7 @@ instance
         argumentFor lang (Proxy :: Proxy '[QueryFlag sym]) farg (Proxy :: Proxy Bool)
 
 instance HasForeign lang farg fres Raw where
-  type Foreign farg fres Raw = HTTP.Method -> Req farg fres
+  type Foreign farg fres Raw = HTTP.Method -> Request farg fres
 
   foreignFor _ Proxy Proxy Proxy req method_ =
     req & functionName . _FunctionName %~ ((toLower $ decodeUtf8 method_) :)
@@ -311,12 +311,12 @@ instance HasForeign lang farg fres api
 --   the data needed to generate a function for each endpoint
 --   and hands it all back in a list.
 class GenerateList farg fres reqs where
-  generateList :: reqs -> [Req farg fres]
+  generateList :: reqs -> [Request farg fres]
 
 instance GenerateList farg fres EmptyForeignAPI where
   generateList _ = []
 
-instance GenerateList farg fres (Req farg fres) where
+instance GenerateList farg fres (Request farg fres) where
   generateList r = [r]
 
 instance (GenerateList farg fres start, GenerateList farg fres rest)
@@ -331,5 +331,5 @@ listFromAPI
   -> Proxy farg
   -> Proxy fres
   -> Proxy api
-  -> [Req farg fres]
+  -> [Request farg fres]
 listFromAPI lang farg fres p = generateList (foreignFor lang farg fres p defReq)

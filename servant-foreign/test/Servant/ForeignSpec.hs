@@ -85,7 +85,7 @@ type TestApi
  :<|> "test" :> CaptureAll "ids" Int :> Get '[JSON] [Int]
  :<|> "test" :> EmptyAPI
 
-testApi :: [Req String String]
+testApi :: [Request String String]
 testApi = listFromAPI (Proxy :: Proxy LangX) (Proxy :: Proxy String) (Proxy :: Proxy String) (Proxy :: Proxy TestApi)
 
 listFromAPISpec :: Spec
