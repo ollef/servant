@@ -101,7 +101,7 @@ listFromAPISpec = describe "listFromAPI" $ do
           [ Static "test" ]
           [ QueryArg (Arg "flag" "boolX") Flag ]
       , _reqMethod     = "GET"
-      , _reqHeaders    = [Arg "header" "maybe arg listX of stringX"]
+      , _reqHeaders    = [("header", "maybe arg listX of stringX")]
       , _reqBody       = Nothing
       , _reqReturnType = Just "res intX"
       , _reqFuncName   = FunctionName ["get", "test"]

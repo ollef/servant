@@ -82,7 +82,7 @@ data ReqBodyContentType = ReqBodyJSON | ReqBodyMultipart
 data Req arg res = Req
   { _reqUrl             :: Url arg
   , _reqMethod          :: HTTP.Method
-  , _reqHeaders         :: [Arg arg]
+  , _reqHeaders         :: [(Text, arg)]
   , _reqBody            :: Maybe arg
   , _reqReturnType      :: Maybe res
   , _reqFuncName        :: FunctionName
@@ -199,12 +199,11 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Header' mods sym a] farg (R
   type Foreign farg fres (Header' mods sym a :> api) = Foreign farg fres api
 
   foreignFor lang Proxy Proxy Proxy req =
-    foreignFor lang Proxy Proxy subP $ req & reqHeaders <>~ [arg]
+    foreignFor lang Proxy Proxy subP $ req & reqHeaders <>~ [(hname, farg)]
     where
       hname = pack . symbolVal $ (Proxy :: Proxy sym)
-      arg   = Arg
-        { _argName = hname
-        , _argType  = argumentFor lang (Proxy :: Proxy '[Header' mods sym a]) (Proxy :: Proxy farg) (Proxy :: Proxy (RequiredArgument mods a)) }
+      farg =
+        argumentFor lang (Proxy :: Proxy '[Header' mods sym a]) (Proxy :: Proxy farg) (Proxy :: Proxy (RequiredArgument mods a))
       subP  = Proxy :: Proxy api
 
 instance (KnownSymbol sym, HasForeignArgument lang '[QueryParam' mods sym a] farg (RequiredArgument mods a), HasForeign lang farg fres api)
