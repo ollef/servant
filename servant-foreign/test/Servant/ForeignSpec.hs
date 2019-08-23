@@ -97,64 +97,64 @@ listFromAPISpec = describe "listFromAPI" $ do
 
   it "collects all info for get request" $ do
     shouldBe getReq $ defReq
-      { _reqUrl        = Url
+      { _url = Url
           [Static "test"]
           [("flag", Flag, "boolX")]
-      , _reqMethod     = "GET"
-      , _reqHeaders    = [("header", "maybe arg listX of stringX")]
-      , _reqBody       = Nothing
-      , _reqReturnType = Just "res intX"
-      , _reqFuncName   = FunctionName ["get", "test"]
+      , _method = "GET"
+      , _headers = [("header", "maybe arg listX of stringX")]
+      , _body = Nothing
+      , _returnType = Just "res intX"
+      , _functionName = FunctionName ["get", "test"]
       }
 
   it "collects all info for post request" $ do
     shouldBe postReq $ defReq
-      { _reqUrl        = Url
+      { _url = Url
           [Static "test"]
           [("param", Normal, "maybe arg intX")]
-      , _reqMethod     = "POST"
-      , _reqHeaders    = []
-      , _reqBody       = Just "arg listX of stringX"
-      , _reqReturnType = Just "voidX"
-      , _reqFuncName   = FunctionName ["post", "test"]
+      , _method = "POST"
+      , _headers = []
+      , _body = Just "arg listX of stringX"
+      , _returnType = Just "voidX"
+      , _functionName = FunctionName ["post", "test"]
       }
 
   it "collects all info for put request" $ do
     shouldBe putReq $ defReq
-      { _reqUrl        = Url
+      { _url = Url
           [Static "test"]
           -- Shoud this be |intX| or |listX of intX| ?
           [("params", List, "arg listX of arg intX")]
-      , _reqMethod     = "PUT"
-      , _reqHeaders    = []
-      , _reqBody       = Just "stringX"
-      , _reqReturnType = Just "voidX"
-      , _reqFuncName   = FunctionName ["put", "test"]
+      , _method = "PUT"
+      , _headers = []
+      , _body = Just "stringX"
+      , _returnType = Just "voidX"
+      , _functionName = FunctionName ["put", "test"]
       }
 
   it "collects all info for delete request" $ do
     shouldBe deleteReq $ defReq
-      { _reqUrl        = Url
+      { _url = Url
           [ Static "test"
           , Capture "id" "arg intX"
           ]
           []
-      , _reqMethod     = "DELETE"
-      , _reqHeaders    = []
-      , _reqBody       = Nothing
-      , _reqReturnType = Just "voidX"
-      , _reqFuncName   = FunctionName ["delete", "test", "by", "id"]
+      , _method = "DELETE"
+      , _headers = []
+      , _body = Nothing
+      , _returnType = Just "voidX"
+      , _functionName = FunctionName ["delete", "test", "by", "id"]
       }
 
   it "collects all info for capture all request" $ do
     shouldBe captureAllReq $ defReq
-      { _reqUrl        = Url
+      { _url = Url
           [ Static "test"
           , Capture "ids" "arg listX of arg intX" ]
           []
-      , _reqMethod     = "GET"
-      , _reqHeaders    = []
-      , _reqBody       = Nothing
-      , _reqReturnType = Just "res listX of res intX"
-      , _reqFuncName   = FunctionName ["get", "test", "by", "ids"]
+      , _method = "GET"
+      , _headers = []
+      , _body = Nothing
+      , _returnType = Just "res listX of res intX"
+      , _functionName = FunctionName ["get", "test", "by", "ids"]
       }

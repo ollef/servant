@@ -66,13 +66,13 @@ data ReqBodyContentType = ReqBodyJSON | ReqBodyMultipart
   deriving (Data, Eq, Show, Read)
 
 data Req arg res = Req
-  { _reqUrl :: Url arg
-  , _reqMethod :: HTTP.Method
-  , _reqHeaders :: [(Text, arg)]
-  , _reqBody :: Maybe arg
-  , _reqReturnType :: Maybe res
-  , _reqFuncName :: FunctionName
-  , _reqBodyContentType :: ReqBodyContentType
+  { _url :: Url arg
+  , _method :: HTTP.Method
+  , _headers :: [(Text, arg)]
+  , _body :: Maybe arg
+  , _returnType :: Maybe res
+  , _functionName :: FunctionName
+  , _bodyContentType :: ReqBodyContentType
   } deriving (Data, Eq, Show, Typeable)
 
 makeLenses ''Req
@@ -135,8 +135,8 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Capture' mods sym t] farg t
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy api) $
-      req & reqUrl . path <>~ [Capture str foreignArg]
-          & reqFuncName . _FunctionName %~ (++ ["by", str])
+      req & url . path <>~ [Capture str foreignArg]
+          & functionName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       foreignArg = argumentFor lang (Proxy :: Proxy '[Capture' mods sym t]) (Proxy :: Proxy farg) (Proxy :: Proxy t)
@@ -147,8 +147,8 @@ instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t],
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy sublayout) $
-      req & reqUrl . path <>~ [Capture str foreignArg]
-          & reqFuncName . _FunctionName %~ (++ ["by", str])
+      req & url . path <>~ [Capture str foreignArg]
+          & functionName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       foreignArg = argumentFor lang (Proxy :: Proxy '[CaptureAll sym t]) (Proxy :: Proxy farg) (Proxy :: Proxy [t])
@@ -158,13 +158,13 @@ instance (HasForeignResult lang list fres a, ReflectMethod method)
   type Foreign farg fres (Verb method status list a) = Req farg fres
 
   foreignFor lang Proxy Proxy Proxy req =
-    req & reqFuncName . _FunctionName %~ (methodLC :)
-        & reqMethod .~ method
-        & reqReturnType .~ Just retType
+    req & functionName . _FunctionName %~ (methodLC :)
+        & method .~ method_
+        & returnType .~ Just retType
     where
       retType = resultFor lang (Proxy :: Proxy list) (Proxy :: Proxy fres) (Proxy :: Proxy a)
-      method = reflectMethod (Proxy :: Proxy method)
-      methodLC = toLower $ decodeUtf8 method
+      method_ = reflectMethod (Proxy :: Proxy method)
+      methodLC = toLower $ decodeUtf8 method_
 
 -- | TODO: doesn't taking framing into account.
 instance (HasForeignResult lang '[ct] fres a, ReflectMethod method)
@@ -172,20 +172,20 @@ instance (HasForeignResult lang '[ct] fres a, ReflectMethod method)
   type Foreign farg fres (Stream method status framing ct a) = Req farg fres
 
   foreignFor lang Proxy Proxy Proxy req =
-    req & reqFuncName . _FunctionName %~ (methodLC :)
-        & reqMethod .~ method
-        & reqReturnType .~ Just retType
+    req & functionName . _FunctionName %~ (methodLC :)
+        & method .~ method_
+        & returnType .~ Just retType
     where
       retType = resultFor lang (Proxy :: Proxy '[ct]) (Proxy :: Proxy fres) (Proxy :: Proxy a)
-      method = reflectMethod (Proxy :: Proxy method)
-      methodLC = toLower $ decodeUtf8 method
+      method_ = reflectMethod (Proxy :: Proxy method)
+      methodLC = toLower $ decodeUtf8 method_
 
 instance (KnownSymbol sym, HasForeignArgument lang '[Header' mods sym a] farg (RequiredArgument mods a), HasForeign lang farg fres api)
   => HasForeign lang farg fres (Header' mods sym a :> api) where
   type Foreign farg fres (Header' mods sym a :> api) = Foreign farg fres api
 
   foreignFor lang Proxy Proxy Proxy req =
-    foreignFor lang Proxy Proxy subP $ req & reqHeaders <>~ [(hname, foreignArg)]
+    foreignFor lang Proxy Proxy subP $ req & headers <>~ [(hname, foreignArg)]
     where
       hname = pack . symbolVal $ (Proxy :: Proxy sym)
       foreignArg =
@@ -198,7 +198,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[QueryParam' mods sym a] far
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang (Proxy :: Proxy farg) Proxy (Proxy :: Proxy api) $
-      req & reqUrl.queryString <>~ [(str, Normal, foreignArg)]
+      req & url . queryString <>~ [(str, Normal, foreignArg)]
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       foreignArg =
@@ -210,7 +210,7 @@ instance
   type Foreign farg fres (QueryParams sym a :> api) = Foreign farg fres api
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang (Proxy :: Proxy farg) Proxy (Proxy :: Proxy api) $
-      req & reqUrl.queryString <>~ [(str, List, foreignArg)]
+      req & url . queryString <>~ [(str, List, foreignArg)]
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       foreignArg =
@@ -223,7 +223,7 @@ instance
 
   foreignFor lang farg fres Proxy req =
     foreignFor lang farg fres (Proxy :: Proxy api) $
-      req & reqUrl.queryString <>~ [(str, Flag, foreignArg)]
+      req & url . queryString <>~ [(str, Flag, foreignArg)]
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       foreignArg =
@@ -232,9 +232,9 @@ instance
 instance HasForeign lang farg fres Raw where
   type Foreign farg fres Raw = HTTP.Method -> Req farg fres
 
-  foreignFor _ Proxy Proxy Proxy req method =
-    req & reqFuncName . _FunctionName %~ ((toLower $ decodeUtf8 method) :)
-        & reqMethod .~ method
+  foreignFor _ Proxy Proxy Proxy req method_ =
+    req & functionName . _FunctionName %~ ((toLower $ decodeUtf8 method_) :)
+        & method .~ method_
 
 instance (HasForeignArgument lang list farg a, HasForeign lang farg fres api)
       => HasForeign lang farg fres (ReqBody' mods list a :> api) where
@@ -242,7 +242,7 @@ instance (HasForeignArgument lang list farg a, HasForeign lang farg fres api)
 
   foreignFor lang farg fres Proxy req =
     foreignFor lang farg fres (Proxy :: Proxy api) $
-      req & reqBody .~ (Just $ argumentFor lang (Proxy :: Proxy list) farg (Proxy :: Proxy a))
+      req & body .~ (Just $ argumentFor lang (Proxy :: Proxy list) farg (Proxy :: Proxy a))
 
 instance
     ( HasForeign lang farg fres api
@@ -258,8 +258,8 @@ instance (KnownSymbol path, HasForeign lang farg fres api)
 
   foreignFor lang farg fres Proxy req =
     foreignFor lang farg fres (Proxy :: Proxy api) $
-      req & reqUrl . path <>~ [Static str]
-          & reqFuncName . _FunctionName %~ (++ [str])
+      req & url . path <>~ [Static str]
+          & functionName . _FunctionName %~ (++ [str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy path)
 
