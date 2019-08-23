@@ -55,7 +55,7 @@ makeLenses ''Arg
 data PathSegment f
   = Static Text
     -- ^ a static path segment. like "/foo"
-  | Capture (Arg f)
+  | Capture Text f
     -- ^ a capture. like "/:userid"
   deriving (Data, Eq, Show, Typeable)
 
@@ -155,14 +155,11 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Capture' mods sym t] farg t
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy api) $
-      req & reqUrl . path <>~ [Capture arg]
+      req & reqUrl . path <>~ [Capture str farg]
           & reqFuncName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       farg = argumentFor lang (Proxy :: Proxy '[Capture' mods sym t]) (Proxy :: Proxy farg) (Proxy :: Proxy t)
-      arg = Arg
-        { _argName = str
-        , _argType = farg }
 
 instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t], HasForeign lang farg fres sublayout)
   => HasForeign lang farg fres (CaptureAll sym t :> sublayout) where
@@ -170,14 +167,11 @@ instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t],
 
   foreignFor lang Proxy Proxy Proxy req =
     foreignFor lang Proxy Proxy (Proxy :: Proxy sublayout) $
-      req & reqUrl . path <>~ [Capture arg]
+      req & reqUrl . path <>~ [Capture str farg]
           & reqFuncName . _FunctionName %~ (++ ["by", str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       farg = argumentFor lang (Proxy :: Proxy '[CaptureAll sym t]) (Proxy :: Proxy farg) (Proxy :: Proxy [t])
-      arg = Arg
-        { _argName = str
-        , _argType = farg }
 
 instance (HasForeignResult lang list fres a, ReflectMethod method)
   => HasForeign lang farg fres (Verb method status list a) where
