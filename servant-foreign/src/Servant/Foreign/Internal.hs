@@ -46,23 +46,15 @@ newtype FunctionName = FunctionName { unFunctionName :: [Text] }
 
 makePrisms ''FunctionName
 
-newtype PathSegment = PathSegment { unPathSegment :: Text }
-  deriving (Data, Show, Eq, IsString, Semigroup, Monoid, Typeable)
-
-makePrisms ''PathSegment
-
 data Arg f = Arg
-  { _argName :: PathSegment
+  { _argName :: Text
   , _argType :: f }
   deriving (Data, Functor, Eq, Show, Typeable)
 
 makeLenses ''Arg
 
-argPath :: Getter (Arg f) Text
-argPath = argName . _PathSegment
-
 data SegmentType f
-  = Static PathSegment
+  = Static Text
     -- ^ a static path segment. like "/foo"
   | Cap (Arg f)
     -- ^ a capture. like "/:userid"
@@ -191,7 +183,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Capture' mods sym t] farg t
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       farg = argumentFor lang (Proxy :: Proxy '[Capture' mods sym t]) (Proxy :: Proxy farg) (Proxy :: Proxy t)
       arg = Arg
-        { _argName = PathSegment str
+        { _argName = str
         , _argType = farg }
 
 instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t], HasForeign lang farg fres sublayout)
@@ -206,7 +198,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[CaptureAll sym t] farg [t],
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       farg = argumentFor lang (Proxy :: Proxy '[CaptureAll sym t]) (Proxy :: Proxy farg) (Proxy :: Proxy [t])
       arg = Arg
-        { _argName = PathSegment str
+        { _argName = str
         , _argType = farg }
 
 instance (HasForeignResult lang list fres a, ReflectMethod method)
@@ -245,7 +237,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Header' mods sym a] farg (R
     where
       hname = pack . symbolVal $ (Proxy :: Proxy sym)
       arg   = Arg
-        { _argName = PathSegment hname
+        { _argName = hname
         , _argType  = argumentFor lang (Proxy :: Proxy '[Header' mods sym a]) (Proxy :: Proxy farg) (Proxy :: Proxy (RequiredArgument mods a)) }
       subP  = Proxy :: Proxy api
 
@@ -259,7 +251,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[QueryParam' mods sym a] far
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       arg = Arg
-        { _argName = PathSegment str
+        { _argName = str
         , _argType = argumentFor lang (Proxy :: Proxy '[QueryParam' mods sym a]) (Proxy :: Proxy farg) (Proxy :: Proxy (RequiredArgument mods a)) }
 
 instance
@@ -272,7 +264,7 @@ instance
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       arg = Arg
-        { _argName = PathSegment str
+        { _argName = str
         , _argType = argumentFor lang (Proxy :: Proxy '[QueryParams sym a]) (Proxy :: Proxy farg) (Proxy :: Proxy [a]) }
 
 instance
@@ -286,7 +278,7 @@ instance
     where
       str = pack . symbolVal $ (Proxy :: Proxy sym)
       arg = Arg
-        { _argName = PathSegment str
+        { _argName = str
         , _argType = argumentFor lang (Proxy :: Proxy '[QueryFlag sym]) farg (Proxy :: Proxy Bool) }
 
 instance HasForeign lang farg fres Raw where
@@ -318,7 +310,7 @@ instance (KnownSymbol path, HasForeign lang farg fres api)
 
   foreignFor lang farg fres Proxy req =
     foreignFor lang farg fres (Proxy :: Proxy api) $
-      req & reqUrl . path <>~ [Static (PathSegment str)]
+      req & reqUrl . path <>~ [Static str]
           & reqFuncName . _FunctionName %~ (++ [str])
     where
       str = pack . symbolVal $ (Proxy :: Proxy path)

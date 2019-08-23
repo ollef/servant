@@ -12,11 +12,9 @@ module Servant.Foreign
   , Path
   , Arg(..)
   , FunctionName(..)
-  , PathSegment(..)
     -- lenses
   , argName
   , argType
-  , argPath
   , reqUrl
   , reqMethod
   , reqHeaders
@@ -30,7 +28,6 @@ module Servant.Foreign
   , queryArgType
   , headerArg
     -- prisms
-  , _PathSegment
   , _HeaderArg
   , _ReplaceHeaderArg
   , _Static
