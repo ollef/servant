@@ -59,8 +59,6 @@ data PathSegment f
     -- ^ a capture. like "/:userid"
   deriving (Data, Eq, Show, Typeable)
 
-type Path f = [PathSegment f]
-
 data ArgType
   = Normal
   | Flag
@@ -78,7 +76,7 @@ data QueryArg f = QueryArg
 makeLenses ''QueryArg
 
 data Url f = Url
-  { _path     :: Path f
+  { _path     :: [PathSegment f]
   , _queryStr :: [QueryArg f]
   }
   deriving (Data, Eq, Show, Typeable)

@@ -8,7 +8,6 @@ module Servant.Foreign
   , ReqBodyContentType(..)
   , Url(..)
     -- aliases
-  , Path
   , Arg(..)
   , FunctionName(..)
     -- lenses
