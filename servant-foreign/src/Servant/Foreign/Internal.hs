@@ -19,26 +19,20 @@
 -- arbitrary programming languages.
 module Servant.Foreign.Internal where
 
-import           Prelude ()
-import           Prelude.Compat
+import Prelude ()
+import Prelude.Compat
 
-import           Control.Lens
-                 (makeLenses, makePrisms, (%~), (&), (.~), (<>~))
-import           Data.Data
-                 (Data)
-import           Data.Proxy
-import           Data.Semigroup
-                 (Semigroup)
-import           Data.Text
-import           Data.Text.Encoding
-                 (decodeUtf8)
-import           Data.Typeable
-                 (Typeable)
-import           GHC.TypeLits
-import qualified Network.HTTP.Types    as HTTP
-import           Servant.API
-import           Servant.API.Modifiers
-                 (RequiredArgument)
+import Control.Lens (makeLenses, makePrisms, (%~), (&), (.~), (<>~))
+import Data.Data (Data)
+import Data.Proxy
+import Data.Semigroup (Semigroup)
+import Data.Text
+import Data.Text.Encoding (decodeUtf8)
+import Data.Typeable (Typeable)
+import GHC.TypeLits
+import qualified Network.HTTP.Types as HTTP
+import Servant.API
+import Servant.API.Modifiers (RequiredArgument)
 
 newtype FunctionName = FunctionName { unFunctionName :: [Text] }
   deriving (Data, Show, Eq, Semigroup, Monoid, Typeable)
