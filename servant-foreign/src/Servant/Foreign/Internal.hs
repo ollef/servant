@@ -77,18 +77,6 @@ data QueryArg f = QueryArg
 
 makeLenses ''QueryArg
 
-data HeaderArg f = HeaderArg
-  { _headerArg :: Arg f }
-  | ReplaceHeaderArg
-  { _headerArg     :: Arg f
-  , _headerPattern :: Text
-  }
-  deriving (Data, Eq, Show, Typeable)
-
-makeLenses ''HeaderArg
-
-makePrisms ''HeaderArg
-
 data Url f = Url
   { _path     :: Path f
   , _queryStr :: [QueryArg f]
@@ -106,7 +94,7 @@ data ReqBodyContentType = ReqBodyJSON | ReqBodyMultipart
 data Req arg res = Req
   { _reqUrl             :: Url arg
   , _reqMethod          :: HTTP.Method
-  , _reqHeaders         :: [HeaderArg arg]
+  , _reqHeaders         :: [Arg arg]
   , _reqBody            :: Maybe arg
   , _reqReturnType      :: Maybe res
   , _reqFuncName        :: FunctionName
@@ -230,7 +218,7 @@ instance (KnownSymbol sym, HasForeignArgument lang '[Header' mods sym a] farg (R
   type Foreign farg fres (Header' mods sym a :> api) = Foreign farg fres api
 
   foreignFor lang Proxy Proxy Proxy req =
-    foreignFor lang Proxy Proxy subP $ req & reqHeaders <>~ [HeaderArg arg]
+    foreignFor lang Proxy Proxy subP $ req & reqHeaders <>~ [arg]
     where
       hname = pack . symbolVal $ (Proxy :: Proxy sym)
       arg   = Arg

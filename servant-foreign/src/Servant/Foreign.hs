@@ -2,7 +2,6 @@
 -- arbitrary programming languages.
 module Servant.Foreign
   ( ArgType(..)
-  , HeaderArg(..)
   , PathSegment(..)
   , QueryArg(..)
   , Req(..)
@@ -26,10 +25,7 @@ module Servant.Foreign
   , queryStr
   , queryArgName
   , queryArgType
-  , headerArg
     -- prisms
-  , _HeaderArg
-  , _ReplaceHeaderArg
   , _Normal
   , _Flag
   , _List
