@@ -62,9 +62,6 @@ defUrl = Url [] []
 
 makeLenses ''Url
 
-data ReqBodyContentType = ReqBodyJSON | ReqBodyMultipart
-  deriving (Data, Eq, Show, Read)
-
 data Req arg res = Req
   { _url :: Url arg
   , _method :: HTTP.Method
@@ -72,13 +69,12 @@ data Req arg res = Req
   , _body :: Maybe arg
   , _returnType :: Maybe res
   , _functionName :: FunctionName
-  , _bodyContentType :: ReqBodyContentType
   } deriving (Data, Eq, Show, Typeable)
 
 makeLenses ''Req
 
 defReq :: Req arg res
-defReq = Req defUrl "GET" [] Nothing Nothing (FunctionName []) ReqBodyJSON
+defReq = Req defUrl "GET" [] Nothing Nothing (FunctionName [])
 
 -- | 'HasForeignArgument' and 'HasForeignResult' map Haskell types with types in the target
 -- language of your backend. For example, let's say you're
