@@ -3,10 +3,10 @@
 module Servant.Foreign
   ( ArgType(..)
   , HeaderArg(..)
+  , PathSegment(..)
   , QueryArg(..)
   , Req(..)
   , ReqBodyContentType(..)
-  , SegmentType(..)
   , Url(..)
     -- aliases
   , Path
@@ -30,8 +30,6 @@ module Servant.Foreign
     -- prisms
   , _HeaderArg
   , _ReplaceHeaderArg
-  , _Static
-  , _Cap
   , _Normal
   , _Flag
   , _List

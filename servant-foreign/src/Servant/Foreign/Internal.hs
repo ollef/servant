@@ -23,13 +23,12 @@ import           Prelude ()
 import           Prelude.Compat
 
 import           Control.Lens
-                 (Getter, makeLenses, makePrisms, (%~), (&), (.~), (<>~))
+                 (makeLenses, makePrisms, (%~), (&), (.~), (<>~))
 import           Data.Data
                  (Data)
 import           Data.Proxy
 import           Data.Semigroup
                  (Semigroup)
-import           Data.String
 import           Data.Text
 import           Data.Text.Encoding
                  (decodeUtf8)
@@ -53,16 +52,14 @@ data Arg f = Arg
 
 makeLenses ''Arg
 
-data SegmentType f
+data PathSegment f
   = Static Text
     -- ^ a static path segment. like "/foo"
   | Cap (Arg f)
     -- ^ a capture. like "/:userid"
   deriving (Data, Eq, Show, Typeable)
 
-makePrisms ''SegmentType
-
-type Path f = [SegmentType f]
+type Path f = [PathSegment f]
 
 data ArgType
   = Normal
